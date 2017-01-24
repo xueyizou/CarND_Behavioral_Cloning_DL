@@ -1,7 +1,7 @@
 # Self-Driving Car Engineer Nanodegree Project: Behavioral Cloning with Deep Learning
 by Xueyi Zou email:xy.zou@outlook.com
 
-### Overview
+## Overview
 
 The objective of this project is to make an autonomous agent to drive a car in a simulator provided by Udacity safely. This is achieved by cloning human driving behaviors with a Deep Neural Network, specifically, a Convolutional Neural Network (CNN).
 
@@ -9,7 +9,7 @@ The CNN was learnt during the training phase. First, a person navigates the simu
 
 In the test phase, the learnt CNN was used to drive the car in the same simulator. When testing, the simulator will pass the current center camera image to the driving agent, based on which the driving agent will return a steering angle (by using the learnt CNN) and a fixed throttle value.
 
-### Dependencies
+## Dependencies
 
 This project requires **Python 3.5** and the following Python libraries installed:
 
@@ -20,7 +20,7 @@ This project requires **Python 3.5** and the following Python libraries installe
 
 note: Keras uses TensorFlow as backend, and its **"image_dim_ordering"** was set to **"tf"**.
 
-### Files
+## Files
 - `preprocssor.py`: The script used to pre-process the dataset. After running it, four files named `img_names_train.npy`, `img_names_val.npy`, `steers_train.npy`, `steers_val.npy` will be generated.
 
 - `model.py`: The script used to create and train the model.
@@ -31,7 +31,7 @@ note: Keras uses TensorFlow as backend, and its **"image_dim_ordering"** was set
 
 - `README.md`: (this file) explains the structure of the network and training approach.
 
-### Train a Model
+## Train a Model
 To train a model to drive the car autonomously, do the following:
 1. put the `driving_log.csv` and the `IMG` folder containing the training images inside the `data` folder
 1. run `preprocessor.py`
@@ -39,7 +39,7 @@ To train a model to drive the car autonomously, do the following:
 
 The learnt model structure was saved in `model.json` and its weights were saved in `model.h5`.
 
-### Run the Model
+## Run the Model
 To run the model, do the following steps:
 1. `python drive.py model.json`
 2. open the Udacity simulator and select the autonomous mode.
@@ -124,7 +124,7 @@ def gen_train(img_names_train,steers_train, batch_size):
         end = start + batch_size
         n = len(img_names_train)
         while True:
-            X_batch = _read_imgs(img_names_train[start:end])
+            X_batch = read_imgs(img_names_train[start:end])
             y_batch = steers_train[start:end]
             sample_weights = np.ones_like(y_batch)
             sample_weights[y_batch==0] = 0.5
@@ -137,7 +137,8 @@ def gen_train(img_names_train,steers_train, batch_size):
                 start = 0
                 end = batch_size
             yield (X_batch, y_batch, sample_weights)
-    return f```
+    return f
+    ```
 
 
 Note the **sample_weights** where I assigned a weight of 0.5 to those dominant items whose steering angles are "-0.25", "0", or "0.25". In this way, their influence to the cost function will be reduced.
