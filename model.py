@@ -23,7 +23,7 @@ def gen_train(img_names_train,steers_train, batch_size):
     python generator to generate batch_size data for trainning. Note that I used sample_weights to offset the influence of
     the dominant data classes
     """
-    def _f():
+    def f():
         start = 0
         end = start + batch_size
         n = len(img_names_train)
@@ -44,7 +44,7 @@ def gen_train(img_names_train,steers_train, batch_size):
 
             yield (X_batch, y_batch, sample_weights)
 
-    return _f
+    return f
 
 
 def gen_val(img_names_val,steers_val, batch_size):

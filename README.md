@@ -33,8 +33,9 @@ note: Keras uses TensorFlow as backend, and its **"image_dim_ordering"** was set
 
 ### Train a Model
 To train a model to drive the car autonomously, do the following:
+1. put the `driving_log.csv` and the `IMG` folder containing the training images inside the `data` folder
 1. run `preprocessor.py`
-2. run `model.py`
+1. run `model.py`
 
 The learnt model structure was saved in `model.json` and its weights were saved in `model.h5`.
 
@@ -115,13 +116,13 @@ In the `model.py`, I created two generators:
 - `gen_val(img_names_val,steers_val, batch_size)`
 
 The code for `gen_train()` is as follows:
+
 ```
 def gen_train(img_names_train,steers_train, batch_size):
-    def _f():
+    def f():
         start = 0
         end = start + batch_size
         n = len(img_names_train)
-
         while True:
             X_batch = _read_imgs(img_names_train[start:end])
             y_batch = steers_train[start:end]
@@ -135,11 +136,9 @@ def gen_train(img_names_train,steers_train, batch_size):
             if start >= n:
                 start = 0
                 end = batch_size
-
             yield (X_batch, y_batch, sample_weights)
+    return f```
 
-    return _f
-    ```
 
 Note the **sample_weights** where I assigned a weight of 0.5 to those dominant items whose steering angles are "-0.25", "0", or "0.25". In this way, their influence to the cost function will be reduced.
 
@@ -147,7 +146,7 @@ The batch size of both `gen_train` and `gen_val` was 128.
 
 I used `Adam` optimizer with a learning rate of `1e-4`.
 
-I tried to set the number of epochs to be `5`, `8`, `10`, `20`, and finally I found `10` works well.
+I tried to set the number of epochs to be `5`, `8`, `10`,`15`, `20`, and finally I found `15` works well.
 
 
 ## Results
