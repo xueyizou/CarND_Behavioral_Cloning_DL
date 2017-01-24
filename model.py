@@ -7,8 +7,8 @@ from keras.models import model_from_json
 
 from preprocessor import csvfile_path, preprocessed_data_path, steer_offset, h, w
 
-epochs = 10
-batch_size = 256
+epochs = 15
+batch_size = 128
 
 
 def _read_imgs(img_names):
@@ -32,9 +32,9 @@ def gen_train(img_names_train,steers_train, batch_size):
             X_batch = _read_imgs(img_names_train[start:end])
             y_batch = steers_train[start:end]
             sample_weights = np.ones_like(y_batch)
-            sample_weights[y_batch==0] = 0.4
-            sample_weights[y_batch==steer_offset] = 0.4
-            sample_weights[y_batch==-steer_offset] = 0.4
+            sample_weights[y_batch==0] = 0.5
+            sample_weights[y_batch==steer_offset] = 0.5
+            sample_weights[y_batch==-steer_offset] = 0.5
 
             start += batch_size
             end += batch_size
@@ -103,7 +103,7 @@ def create_model():
 
     model.add(Flatten())
 
-    model.add(Dropout(.5))
+#    model.add(Dropout(.5))
 
     model.add(Dense(1164))
     model.add(Activation(activation))

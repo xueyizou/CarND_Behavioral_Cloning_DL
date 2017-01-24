@@ -128,7 +128,7 @@ def gen_train(img_names_train,steers_train, batch_size):
             sample_weights = np.ones_like(y_batch)
             sample_weights[y_batch==0] = 0.5
             sample_weights[y_batch==steer_offset] = 0.5
-            sample_weights[y_batch==-steer_offset] = 0.5**
+            sample_weights[y_batch==-steer_offset] = 0.5
 
             start += batch_size
             end += batch_size
@@ -140,6 +140,7 @@ def gen_train(img_names_train,steers_train, batch_size):
 
     return _f
     ```
+
 Note the **sample_weights** where I assigned a weight of 0.5 to those dominant items whose steering angles are "-0.25", "0", or "0.25". In this way, their influence to the cost function will be reduced.
 
 The batch size of both `gen_train` and `gen_val` was 128.

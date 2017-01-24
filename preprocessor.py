@@ -82,10 +82,6 @@ def split_dataset(img_names, steers):
     """
     img_names_train, img_names_val, steers_train, steers_val = train_test_split(img_names, steers, test_size=0.2, random_state=0)
 
-#    plt.hist(steers_train, 201)
-#    plt.title("distribution of steer angles of training set")
-#    plt.show()
-
     print("num. train: %d" % len(steers_train))
     np.save("img_names_train.npy", img_names_train)
     np.save("steers_train.npy", steers_train)
