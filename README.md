@@ -102,9 +102,11 @@ Following is a summary of my modified model:
  <img src="./figures/network_summary.png" height="800">
 </p>
 
+The first layer (i.e. lambda_1) is a normalization layer.
+
 The main differences between my model and the NVIDIA's mode are:
 - I used additional **MaxPooling** layers after each  Convolutional Layer to reduce training time.
-- I used a **Dropout** layer after the Flatten layer to overcome overfit.
+- I used a **Dropout** layer after the Flatten layer to overcome overfitting.
 
 ### Training
 I used NVIDIA GEFORCE 940M  GPU to train the model.
@@ -129,7 +131,7 @@ def gen_train(img_names_train,steers_train, batch_size):
             sample_weights = np.ones_like(y_batch)
             sample_weights[y_batch==0] = 0.5
             sample_weights[y_batch==steer_offset] = 0.5
-            sample_weights[y_batch==-steer_offset] = 0.5
+            sample_weights[y_batch==-steer_offset] = 0.5  
 
             start += batch_size
             end += batch_size
@@ -138,10 +140,9 @@ def gen_train(img_names_train,steers_train, batch_size):
                 end = batch_size
             yield (X_batch, y_batch, sample_weights)
     return f
-    ```
+```
 
-
-Note the **sample_weights** where I assigned a weight of 0.5 to those dominant items whose steering angles are "-0.25", "0", or "0.25". In this way, their influence to the cost function will be reduced.
+Note the **sample_weights** where I assigned a weight of **0.5** to those dominant items whose steering angles are "-0.25", "0", or "0.25". In this way, their influence to the cost function will be reduced.
 
 The batch size of both `gen_train` and `gen_val` was 128.
 
