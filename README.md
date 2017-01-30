@@ -88,27 +88,33 @@ Left| Center| Right
 
 ### Training and Validation Split
 
-The augmented dataset were split as training dataset and validation dataset by the following code:
+There is no need for keeping test data since the trained model can be tested in the simulation. So, the augmented dataset were split as training dataset and validation dataset by the following code:
 ```
 img_names_train, img_names_val, steers_train, steers_val
 = train_test_split(img_names, steers, test_size=0.2, random_state=0)
 ```
-### Network Architecture
 
-The network architecture was based on NVIDIA's paper titled "[End to End Learning for Self-Driving Cars](https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf)".
+### Model Architecture Design
 
-Following is a summary of my modified model:
+I have first tried to use a modified VGG model and the [Comma.ai model](https://github.com/commaai/research/blob/master/train_steering_model.py), but I did not get satisfactory results, so I turned to NVIDIA's paper titled "[End to End Learning for Self-Driving Cars](https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf)".
+
+I made some minor modifications to NVIDIA's model and the following is a summary of my final model:
 <p align="center">
  <img src="./figures/network_summary.png" height="800">
 </p>
 
-The first layer (i.e. lambda_1) is a normalization layer.
+### Architecture Characteristics
+The first layer of my model (i.e. lambda_1) is a normalization layer. It is used to normalize the data, so that their range is [-1.0, 1.0] and this makes the model learning easier.
 
-The main differences between my model and the NVIDIA's mode are:
+This model uses Convolutional layers to extract spatial information of the data, and it uses ReLU activations to introduce non-linearity.
+
+The last layer of the model is a linear dense layer to regress the steering angles.
+
+The main differences between my model and the NVIDIA's model are:
 - I used additional **MaxPooling** layers after each  Convolutional Layer to reduce training time.
 - I used a **Dropout** layer after the Flatten layer to overcome overfitting.
 
-### Training
+### Model Training
 I used NVIDIA GEFORCE 940M  GPU to train the model.
 
 The dataset is too large to load into the memory, so I used `fit_generator` of the Keras library for training the model. `fit_generator` uses python generators to generate batch data.
@@ -121,35 +127,55 @@ The code for `gen_train()` is as follows:
 
 ```
 def gen_train(img_names_train,steers_train, batch_size):
-    def f():
+    """
+    python generator to generate batch_size data for training.
+    Note that I used sample_weights to offset the influence of
+    the dominant data classes
+    """
+    def _f():
         start = 0
         end = start + batch_size
         n = len(img_names_train)
+
         while True:
-            X_batch = read_imgs(img_names_train[start:end])
+            X_batch = _read_imgs(img_names_train[start:end])
             y_batch = steers_train[start:end]
             sample_weights = np.ones_like(y_batch)
             sample_weights[y_batch==0] = 0.5
             sample_weights[y_batch==steer_offset] = 0.5
-            sample_weights[y_batch==-steer_offset] = 0.5  
+            sample_weights[y_batch==-steer_offset] = 0.5
 
             start += batch_size
             end += batch_size
             if start >= n:
                 start = 0
                 end = batch_size
+
             yield (X_batch, y_batch, sample_weights)
-    return f
+
+    return _f
 ```
 
 Note the **sample_weights** where I assigned a weight of **0.5** to those dominant items whose steering angles are "-0.25", "0", or "0.25". In this way, their influence to the cost function will be reduced.
 
-The batch size of both `gen_train` and `gen_val` was 128.
+I have tried a batch size of 64, 128, and 256, and I found the best batch size of both `gen_train` and `gen_val` was 128.
 
-I used `Adam` optimizer with a learning rate of `1e-4`.
+I used `Adam` optimizer with a learning rate of `1e-4` to adaptively control the learning process.
 
 I tried to set the number of epochs to be `5`, `8`, `10`,`15`, `20`, and finally I found `15` works well.
 
 
 ## Results
+The learned model was tested in simulations.
+
 The model can drive the car safely in the first track, but it has some problem in the second track. I may have to use some images from the second track as training data to train the model, which I will try later.
+
+
+## References
+When doing this project, I have referred to the following:
+
+CommaAI's open source code: [https://github.com/commaai/research/blob/master/train_steering_model.py](https://github.com/commaai/research/blob/master/train_steering_model.py)
+
+NVIDIA's [End to End Learning for Self-Driving Cars paper](https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf).
+
+Paul Heraty's [Behavioral Cloning Cheatsheet](https://carnd-forums.udacity.com/cq/viewquestion.action?id=26214464&questionTitle=behavioral-cloning-cheatsheethttps://carnd-forums.udacity.com/cq/viewquestion.action?id=26214464&questionTitle=behavioral-cloning-cheatsheet)

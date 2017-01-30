@@ -92,10 +92,10 @@ def split_dataset(img_names, steers):
 
 if __name__=="__main__":
     ##do the following commented code only for once to save time.
-#    if os.path.exists(preprocessed_data_path):
-#        shutil.rmtree(preprocessed_data_path)
-#    os.mkdir(preprocessed_data_path)
-#    process_images()
+    if os.path.exists(preprocessed_data_path):
+        shutil.rmtree(preprocessed_data_path)
+    os.mkdir(preprocessed_data_path)
+    process_images()
 
     img_names, steers = get_dataset()
     print("num. data: %d" % len(steers))
